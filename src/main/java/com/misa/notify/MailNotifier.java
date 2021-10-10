@@ -56,7 +56,7 @@ public class MailNotifier {
         message.setFrom(new InternetAddress(getFromAddress()));
         message.addRecipients(Message.RecipientType.BCC, getRecipientAddresses());
         message.setSubject(getTitleSubstring(news.getTitleString()), "UTF-8");
-        message.setText(news.getTitleString() + "\n" + news.getLink());
+        message.setText(news.getTitleString() + "\n" + news.getLink(), "UTF-8");
 
         return message;
     }
