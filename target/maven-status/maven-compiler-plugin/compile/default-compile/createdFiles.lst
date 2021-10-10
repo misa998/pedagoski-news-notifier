@@ -1,0 +1,9 @@
+com\misa\db\DataSource.class
+com\misa\entity\News.class
+com\misa\dao\NewsDAOImpl.class
+com\misa\Main$1.class
+com\misa\util\GetProperties.class
+com\misa\Main.class
+com\misa\dao\NewsDAO.class
+com\misa\entity\News$NewsBuilder.class
+com\misa\scraper\WebScraper.class
