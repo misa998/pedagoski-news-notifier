@@ -1,13 +1,11 @@
 package com.misa.util;
 
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @NoArgsConstructor
@@ -16,7 +14,8 @@ public class GetProperties {
 
     public static void loadFile() throws IOException {
         try (InputStream input = GetProperties.class
-                .getClassLoader().getResourceAsStream("properties/app.properties")) {
+                                         .getClassLoader()
+                                         .getResourceAsStream("properties/app.properties")) {
 
             getProperties(input);
         } catch (NullPointerException | IOException e) {
@@ -31,7 +30,7 @@ public class GetProperties {
     }
 
     public static String get(String name) {
-        if(properties == null) {
+        if (properties == null) {
             try {
                 loadFile();
             } catch (IOException e) {

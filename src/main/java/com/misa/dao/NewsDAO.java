@@ -7,8 +7,10 @@ import java.util.Optional;
 
 public interface NewsDAO {
     Optional<News> getById(int id);
+
     Optional<News> getByNewsId(int id);
+
     List<News> getAll();
-    News getLatest();
+
     int save(News news);
 }

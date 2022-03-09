@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface RecipientDAO {
 
-    public List<Recipient> getAll();
+    List<Recipient> getAll();
 }

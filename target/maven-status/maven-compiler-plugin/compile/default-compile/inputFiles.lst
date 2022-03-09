@@ -1,4 +1,8 @@
 D:\Java\spring projects\webScraper\src\main\java\com\misa\util\GetProperties.java
+D:\Java\spring projects\webScraper\src\main\java\com\misa\notify\MailParameters.java
+D:\Java\spring projects\webScraper\src\main\java\com\misa\dao\KeywordsToAvoidDAO.java
+D:\Java\spring projects\webScraper\src\main\java\com\misa\dao\KeywordsToAvoidDAOImpl.java
+D:\Java\spring projects\webScraper\src\main\java\com\misa\entity\KeywordToAvoid.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\entity\Recipient.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\dao\NewsDAO.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\dao\NewsDAOImpl.java
@@ -7,7 +11,6 @@ D:\Java\spring projects\webScraper\src\main\java\com\misa\db\DataSource.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\dao\RecipientDAOImpl.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\entity\News.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\Main.java
-D:\Java\spring projects\webScraper\src\main\java\com\misa\notify\MailConfig.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\notify\MailCredentials.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\notify\MailNotifier.java
 D:\Java\spring projects\webScraper\src\main\java\com\misa\scraper\WebScraper.java

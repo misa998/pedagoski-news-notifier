@@ -1,12 +1,12 @@
 package com.misa.entity;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 @AllArgsConstructor
 @Getter
