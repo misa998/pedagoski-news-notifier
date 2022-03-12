@@ -1,5 +1,6 @@
 package com.misa.scraper;
 
+import com.misa.dao.exceptions.FailedToScraperTheUrlException;
 import com.misa.entity.News;
 
 import org.apache.commons.codec.binary.StringUtils;
@@ -8,21 +9,24 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Getter(AccessLevel.PRIVATE)
+@Setter(onParam_=@NonNull)
 @Log4j
 public class WebScraper {
     public static final Pattern PATTERN = Pattern.compile("(?<=\\=)(.*?)(?=\\&)");
@@ -36,8 +40,8 @@ public class WebScraper {
             Document doc = Jsoup.connect(url).get();
             return doc.getElementsByClass(className).first();
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new FailedToScraperTheUrlException(
+                    String.format("Failed to read from url: %s | and class name: %s", url, className), e);
         }
     }
 
@@ -59,9 +63,7 @@ public class WebScraper {
             ws.setUrl(news.getLink());
             ws.setClassName("wrap_content leva3_3width");
             ws.setCurrentNewsLink(currentNewsLink);
-            String content = ws.getNewsContent();
-            news.setContent(content);
-
+            news.setContent(ws.getNewsContent());
 
             newsList.add(news);
         }
@@ -81,41 +83,55 @@ public class WebScraper {
         news.setContent(anchorLink.html());
 
         currentNewsLink = news.getLink();
-
         return news;
     }
 
-    private int getIdFromLink(String link) {
+    private BigDecimal getIdFromLink(String link) {
         Matcher matcher = PATTERN.matcher(link);
         if (matcher.find())
-            return Integer.parseInt(matcher.group(0));
+            return new BigDecimal(matcher.group(0));
+        else
+            throw new IllegalArgumentException(String.format("Id not found in the link: %s .", link));
 
-        return 0;
     }
 
     public String getNewsContent() {
         Element content = scrape();
         String modifiedContent = scrapeAttachments(content);
         modifiedContent = modifyTitle(modifiedContent);
+        modifiedContent = appendFooter(modifiedContent);
         return modifiedContent;
     }
 
+    private String appendFooter(String modifiedContent) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(modifiedContent);
+        sb.append("<br/><br/>");
+        sb.append("This is automatically generated email with content scraped from the ");
+        sb.append(getCurrentNewsLink());
+        sb.append(" website. You are receiving this email because you are subscribed to the mailing list.");
+        return sb.toString();
+    }
+
     private String modifyTitle(String content) {
-        /*Element titleElement = element.getElementsByClass("vest_naslov leva2_3width").first();
-        String oldTitleHref = titleElement.attr("href");*/
-        return content.replace("class=\"vest_naslov leva2_3width\" href=\"#\"", String.format("class=\"vest_naslov leva2_3width\" href=\"%s\"", getCurrentNewsLink()));
+        return content.replaceFirst("class=\"vest_naslov leva2_3width\" href=\"#\"",
+                String.format("href=\"%s\"", getCurrentNewsLink()));
     }
 
     private String scrapeAttachments(Element content) {
         String finalTag = content.html();
         for (Element e : content.getElementsByClass("fajlovi")) {
             String oldIconLink = e.child(0).attr("src");
-            finalTag = finalTag.replace(String.format("src=\"%s\"", oldIconLink), String.format("src=\"%s\"", "http://www.pfvr.ni.ac.rs/"
-                                                                                                                      .concat(oldIconLink)));
+            String srcToReplace = String.format("src=\"%s\"", oldIconLink);
+            String srcToReplaceWith = String.format("src=\"%s\"", "http://www.pfvr.ni.ac.rs/"
+                                                                          .concat(oldIconLink));
+            finalTag = finalTag.replace(srcToReplace, srcToReplaceWith);
 
             String oldAttLink = e.child(1).attr("href");
-            finalTag = finalTag.replace(String.format("href=\"%s\"", oldAttLink), String.format("href=\"%s\"", "http://www.pfvr.ni.ac.rs/"
-                                                                                                                       .concat(oldAttLink)));
+            String hrefToReplace = String.format("href=\"%s\"", oldAttLink);
+            String hrefToReplaceWith = String.format("href=\"%s\"", "http://www.pfvr.ni.ac.rs/"
+                                                                            .concat(oldAttLink));
+            finalTag = finalTag.replace(hrefToReplace, hrefToReplaceWith);
         }
 
         return finalTag;
@@ -139,6 +155,7 @@ public class WebScraper {
             WebScraper ws = new WebScraper();
             ws.setUrl(news.getLink());
             ws.setClassName("wrap_content leva3_3width");
+            ws.setCurrentNewsLink(currentNewsLink);
             news.setContent(ws.getNewsContent());
 
             newsList.add(news);

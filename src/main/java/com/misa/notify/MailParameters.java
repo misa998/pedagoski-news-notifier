@@ -1,6 +1,6 @@
 package com.misa.notify;
 
-import com.misa.util.GetProperties;
+import com.misa.util.GetApplicationProperties;
 
 import java.util.Properties;
 
@@ -17,11 +17,11 @@ public class MailParameters {
 
     public Properties getMailProperties() {
         Properties props = new Properties();
-        props.put(MAIL_SMTP_AUTH, GetProperties.get(MAIL_SMTP_AUTH));
-        props.put(MAIL_SMTP_STARTTLS_ENABLE, GetProperties.get(MAIL_SMTP_STARTTLS_ENABLE));
-        props.put(MAIL_SMTP_HOST, GetProperties.get(MAIL_SMTP_HOST));
-        props.put(MAIL_SMTP_SSL_ENABLE, Boolean.valueOf(GetProperties.get(MAIL_SMTP_SSL_ENABLE)));
-        props.put(MAIL_SMTP_PORT, GetProperties.get(MAIL_SMTP_PORT));
+        props.put(MAIL_SMTP_AUTH, GetApplicationProperties.get(MAIL_SMTP_AUTH));
+        props.put(MAIL_SMTP_STARTTLS_ENABLE, GetApplicationProperties.get(MAIL_SMTP_STARTTLS_ENABLE));
+        props.put(MAIL_SMTP_HOST, GetApplicationProperties.get(MAIL_SMTP_HOST));
+        props.put(MAIL_SMTP_SSL_ENABLE, Boolean.valueOf(GetApplicationProperties.get(MAIL_SMTP_SSL_ENABLE)));
+        props.put(MAIL_SMTP_PORT, GetApplicationProperties.get(MAIL_SMTP_PORT));
         return props;
     }
 }

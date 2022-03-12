@@ -1,6 +1,6 @@
 package com.misa.db;
 
-import com.misa.util.GetProperties;
+import com.misa.util.GetApplicationProperties;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,14 +25,14 @@ public class DataSource {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
                     getURL(),
-                    GetProperties.get("db.username"),
-                    GetProperties.get("db.password"));
+                    GetApplicationProperties.get("db.username"),
+                    GetApplicationProperties.get("db.password"));
             log.debug("Obtained the connection.");
             return connection;
         } catch (SQLException | ClassNotFoundException e) {
             log.error(e.getMessage());
             System.exit(-1);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -45,14 +45,14 @@ public class DataSource {
         }
     }
 
-    public String getURL() {
+    private String getURL() {
         StringBuilder sb = new StringBuilder();
         sb.append("jdbc:mysql://");
-        sb.append(GetProperties.get("db.ip"));
+        sb.append(GetApplicationProperties.get("db.ip"));
         sb.append(":");
-        sb.append(GetProperties.get("db.port"));
+        sb.append(GetApplicationProperties.get("db.port"));
         sb.append("/");
-        sb.append(GetProperties.get("db.schema"));
+        sb.append(GetApplicationProperties.get("db.schema"));
         return sb.toString();
     }
 }

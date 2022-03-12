@@ -5,32 +5,40 @@ import com.misa.dao.NewsDAOImpl;
 import com.misa.entity.KeywordToAvoid;
 import com.misa.entity.News;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
+@AllArgsConstructor
 public class NotifierController {
 
-    public List<News> getRecentNews(List<News> newsList) {
+    private final List<News> scrapedNews;
+    private List<News> recentNewsList;
+
+    public NotifierController(List<News> scrapedNews) {
+        this.scrapedNews = scrapedNews;
+    }
+
+    public List<News> fetchRecentNews() {
         String recentNewsLog = "Looking for recent news: %s.";
         log.debug(String.format(recentNewsLog, "Started"));
 
-        List<News> recentNewsList = new ArrayList<>();
+        recentNewsList = new ArrayList<>();
         List<News> persistedNews = new NewsDAOImpl().getAll();
-        for (News news : newsList) {
-            if (news.getNewsId() < 1)
-                continue;
+        for (News news : scrapedNews) {
+            if (persistedNews.stream().noneMatch(
+                    newsPers -> newsPers.getNewsId().equals(news.getNewsId()))) {
 
-            if (persistedNews.stream()
-                             .noneMatch(newsPers -> newsPers.getNewsId() == news.getNewsId())) {
-
-                saveNewsToDataBase(news);
                 recentNewsList.add(news);
             }
         }
+
+        saveNewsToDatabase();
 
         log.info(String.format("Found %s recent news.", recentNewsList.size()));
         log.debug(String.format(recentNewsLog, "Finished"));
@@ -38,20 +46,27 @@ public class NotifierController {
     }
 
 
-    public List<News> getNewsOfInterest(List<News> newsList) {
-        return getRecentNews(newsList).stream()
-                                      .filter(news -> isNewsOfInterest(news.getTitleString()))
-                                      .collect(Collectors.toList());
+    public List<News> getNewsOfInterest() {
+        return getRecentNewsList().stream()
+                                  .filter(news -> isNewsOfInterest(news.getTitleString()))
+                                  .collect(Collectors.toList());
     }
 
-    private void saveNewsToDataBase(News news) {
-        int id = new NewsDAOImpl().save(news);
-        news.setId(id);
+    private List<News> getRecentNewsList() {
+        if (recentNewsList == null) {
+            fetchRecentNews();
+        }
+        return recentNewsList;
+    }
+
+    private List<BigDecimal> saveNewsToDatabase() {
+        return new NewsDAOImpl().save(recentNewsList);
     }
 
     private boolean isNewsOfInterest(String title) {
         return getKeywordsToAvoid().stream()
-                                   .noneMatch(k -> title.toLowerCase().contains(k.getWord()));
+                                   .noneMatch(k -> title.toLowerCase()
+                                                        .contains(k.getWord().toLowerCase()));
     }
 
     private List<KeywordToAvoid> getKeywordsToAvoid() {

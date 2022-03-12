@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.Properties;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
@@ -17,35 +19,37 @@ import lombok.extern.log4j.Log4j;
  */
 @Log4j
 @NoArgsConstructor
-public class GetProperties {
-    public static final String PROPERTIES_LOCATION = "properties/app.properties";
+public class GetApplicationProperties {
+    @Getter(AccessLevel.PRIVATE)
+    private static final String PROPERTIES_LOCATION_STRING = "properties/app.properties";
+    @Getter(AccessLevel.PRIVATE)
     private static Properties properties;
 
-    public static void loadFile() {
-        try (InputStream input = GetProperties.class
+    static void loadFile() {
+        try (InputStream input = GetApplicationProperties.class
                                          .getClassLoader()
-                                         .getResourceAsStream(PROPERTIES_LOCATION)) {
+                                         .getResourceAsStream(getPROPERTIES_LOCATION_STRING())) {
 
             fetchProperties(input);
         } catch (NullPointerException | IOException e) {
             throw new FailedToReadPropertiesException(
                     String.format("Failed to read the main application properties from file: %s .",
-                            PROPERTIES_LOCATION), e);
+                            getPROPERTIES_LOCATION_STRING()), e);
         }
     }
 
-    private static void fetchProperties(InputStream in) throws IOException {
+    static void fetchProperties(InputStream in) throws IOException {
         properties = new Properties();
         properties.load(in);
     }
 
-    public static String get(@NonNull String name) {
-        if (properties == null) {
+    public static String get(@NonNull String key) {
+        if (getProperties() == null) {
             loadFile();
         }
-        String fetchedProperty = properties.getProperty(name);
+        String fetchedProperty = getProperties().getProperty(key);
         return Optional.ofNullable(fetchedProperty)
                        .orElseThrow(() -> new PropertyNotFoundByKeyException(
-                               String.format("Property not found by the key: %s .", name)));
+                               String.format("Property not found by the key: %s .", key)));
     }
 }

@@ -1,87 +1,55 @@
 package com.misa.notify;
 
 import com.misa.dao.RecipientDAOImpl;
+import com.misa.dao.exceptions.FailedToSendEmailException;
 import com.misa.entity.News;
 import com.misa.entity.Recipient;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
-import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
-public class MailNotifier {
+public class MailNotifier implements IMailNotifier {
 
-    public static final String SENDER_ADDRESS = "info.pfvr@gmail.com";
+    private News curNews;
 
-    @Getter
-    private final NotifierController notifierController;
-
-    public MailNotifier() {
-        this.notifierController = new NotifierController();
-    }
-
-    public void notify(List<News> recentNewsList) {
-        if (recentNewsList == null || recentNewsList.isEmpty())
-            return;
-
+    public void notifyRecipients(@NonNull List<News> recentNewsList) {
         for (News news : recentNewsList) {
-            send(news);
+            try {
+                String emailLog = "Sending email from %s : %s";
+                log.info(String.format(emailLog, getFromAddress(), "Started"));
+
+                this.curNews = news;
+
+                send();
+                log.info(String.format(emailLog, getFromAddress(), "Finished"));
+            } catch (MessagingException e) {
+                throw new FailedToSendEmailException(
+                        String.format("Failed to send the email from: %s for news: %s",
+                                getFromAddress(), news.getNewsId()), e);
+            }
         }
     }
 
-    private void send(News news) {
-        MailCredentials creds = MailCredentials.builder()
-                                               .username("info.pfvr@gmail.com")
-                                               .password("infopfvrvestioglasi")
-                                               .build();
-
-        Session session = getSession(creds, new MailParameters());
-        try {
-            String emailLog = "Sending email from %s : %s";
-            log.info(String.format(emailLog, creds.getUsername(), "Started"));
-
-            Transport.send(getMessageForNews(news, session));
-
-            log.info(String.format(emailLog, creds.getUsername(), "Finished"));
-        } catch (MessagingException e) {
-            log.error("Sending mail failed. Check antivirus, firewall or email settings.", e);
-            throw new RuntimeException(e);
-        }
+    @Override
+    public String getTitle() {
+        return getTitleSubstring(curNews.getTitleString());
     }
 
-    private Message getMessageForNews(News news, Session session) throws MessagingException {
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(getFromAddress()));
-        message.addRecipients(Message.RecipientType.BCC, getRecipientAddresses());
-        message.setSubject(getTitleSubstring(news.getTitleString()), "UTF-8");
-
-        Multipart multipart = new MimeMultipart();
-        MimeBodyPart bodyPart = new MimeBodyPart();
-        bodyPart.setContent(news.getContent(), "text/html; charset=utf-8");
-        multipart.addBodyPart(bodyPart);
-        message.setContent(multipart);
-
-        return message;
+    @Override
+    public String getContent() {
+        return curNews.getContent();
     }
 
-    private String getTitleSubstring(String title) {
-        Objects.requireNonNull(title);
+    private String getTitleSubstring(@NonNull String title) {
         if (title.length() < 35) {
             return title;
         } else {
@@ -89,21 +57,8 @@ public class MailNotifier {
         }
     }
 
-    private String getFromAddress() {
-        return SENDER_ADDRESS;
-    }
-
-    private Session getSession(MailCredentials creds, MailParameters config) {
-        return Session.getInstance(config.getMailProperties(),
-                new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(creds.getUsername(), creds.getPassword());
-                    }
-                });
-    }
-
-
-    private Address[] getRecipientAddresses() {
+    @Override
+    public Address[] getRecipientAddresses() {
         try {
             List<Recipient> recipients = fetchAllActiveRecipients();
             Address[] addresses = new Address[recipients.size()];
@@ -113,7 +68,7 @@ public class MailNotifier {
 
             return addresses;
         } catch (AddressException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 

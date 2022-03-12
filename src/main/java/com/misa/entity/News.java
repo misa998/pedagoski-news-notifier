@@ -2,29 +2,28 @@ package com.misa.entity;
 
 import org.apache.commons.codec.binary.StringUtils;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class News {
 
-    private int id;
-    private int newsId;
+    private BigDecimal id;
+    private BigDecimal newsId;
     private byte[] title;
     private String link;
     private String content;
-    private LocalDateTime dateTime;
-
-    public News() {
-        dateTime = LocalDateTime.now();
-    }
+    private Timestamp dateTime;
 
     @Override
     public String toString() {
