@@ -19,6 +19,7 @@ public class NotifierController {
 
     private final List<News> scrapedNews;
     private List<News> recentNewsList;
+    private List<KeywordToAvoid> keywordToAvoidList;
 
     public NotifierController(List<News> scrapedNews) {
         this.scrapedNews = scrapedNews;
@@ -70,6 +71,10 @@ public class NotifierController {
     }
 
     private List<KeywordToAvoid> getKeywordsToAvoid() {
-        return new KeywordsToAvoidDAOImpl().getAll();
+        if (keywordToAvoidList == null) {
+            this.keywordToAvoidList = new KeywordsToAvoidDAOImpl().getAll();
+        }
+
+        return this.keywordToAvoidList;
     }
 }

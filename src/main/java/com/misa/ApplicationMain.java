@@ -4,7 +4,6 @@ import com.misa.entity.News;
 import com.misa.notify.MailNotifier;
 import com.misa.notify.NotifierController;
 import com.misa.scraper.WebScraper;
-import com.misa.util.GetApplicationProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +11,10 @@ import java.util.List;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
-public class ApplicationMain implements Runnable{
-    public final List<News> recentNewsList = new ArrayList<>();
+public class ApplicationMain implements Runnable {
     private static final String BULLETIN_BOARD_URL = "http://www.pfvr.ni.ac.rs/oglasna.php";
     private static final String NEWS_URL = "http://www.pfvr.ni.ac.rs/vesti.php?oblast=opste";
+    public final List<News> recentNewsList = new ArrayList<>();
     private final MailNotifier mailNotifier = new MailNotifier();
     private NotifierController notifierController;
 

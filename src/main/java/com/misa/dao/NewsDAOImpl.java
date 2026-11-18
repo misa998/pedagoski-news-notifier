@@ -41,7 +41,9 @@ public class NewsDAOImpl implements NewsDAO {
 
             if (resultSet.next()) {
                 log.info(String.format("Selected: %s record.", 1));
-                return Optional.ofNullable(getNewsFromResultSet(resultSet));
+                News newsFromResultSet = getNewsFromResultSet(resultSet);
+                resultSet.close();
+                return Optional.ofNullable(newsFromResultSet);
             }
         } catch (SQLException | ParseException e) {
             throw new DaoException(e);
@@ -66,7 +68,9 @@ public class NewsDAOImpl implements NewsDAO {
 
             if (resultSet.next()) {
                 log.info(String.format("Selected: %s record.", 1));
-                return Optional.ofNullable(getNewsFromResultSet(resultSet));
+                News newsFromResultSet = getNewsFromResultSet(resultSet);
+                resultSet.close();
+                return Optional.ofNullable(newsFromResultSet);
             }
         } catch (SQLException | ParseException e) {
             throw new DaoException(e);
@@ -90,6 +94,7 @@ public class NewsDAOImpl implements NewsDAO {
             while (resultSet.next())
                 news.add(getNewsFromResultSet(resultSet));
 
+            resultSet.close();
             log.info(String.format("Selected: %s records.", news.size()));
             return news;
         } catch (SQLException | ParseException e) {

@@ -2,6 +2,7 @@ package com.misa.notify;
 
 import com.misa.dao.RecipientDAOImpl;
 import com.misa.dao.exceptions.FailedToSendEmailException;
+import com.misa.dao.exceptions.ParsingEmailAddressException;
 import com.misa.entity.News;
 import com.misa.entity.Recipient;
 
@@ -68,7 +69,7 @@ public class MailNotifier implements IMailNotifier {
 
             return addresses;
         } catch (AddressException e) {
-            throw new RuntimeException(e);
+            throw new ParsingEmailAddressException(e);
         }
     }
 

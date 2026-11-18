@@ -25,7 +25,7 @@ public class GetApplicationProperties {
     @Getter(AccessLevel.PRIVATE)
     private static Properties properties;
 
-    static void loadFile() {
+    private static void loadFile() {
         try (InputStream input = GetApplicationProperties.class
                                          .getClassLoader()
                                          .getResourceAsStream(getPROPERTIES_LOCATION_STRING())) {
@@ -38,7 +38,7 @@ public class GetApplicationProperties {
         }
     }
 
-    static void fetchProperties(InputStream in) throws IOException {
+    private static void fetchProperties(InputStream in) throws IOException {
         properties = new Properties();
         properties.load(in);
     }

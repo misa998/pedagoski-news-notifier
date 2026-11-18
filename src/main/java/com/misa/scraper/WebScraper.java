@@ -1,10 +1,12 @@
 package com.misa.scraper;
 
 import com.misa.dao.exceptions.FailedToScraperTheUrlException;
+import com.misa.dao.exceptions.UrlDoesntMatchFormatException;
 import com.misa.entity.News;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -26,7 +28,7 @@ import lombok.extern.log4j.Log4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter(AccessLevel.PRIVATE)
-@Setter(onParam_=@NonNull)
+@Setter(onParam_ = @NonNull)
 @Log4j
 public class WebScraper {
     public static final Pattern PATTERN = Pattern.compile("(?<=\\=)(.*?)(?=\\&)");
@@ -86,13 +88,29 @@ public class WebScraper {
         return news;
     }
 
-    private BigDecimal getIdFromLink(String link) {
+    /**
+     * <p>Extracts the id from the provided link.</p>
+     * <p>Pattern for regex matching is: (?<=\\=)(.*?)(?=\\&)</p>
+     *
+     * @param link - String value of the valid URL.
+     * @return BigDecimal value of an {@link News#getNewsId()}.
+     * @throws IllegalArgumentException - if the id is not found by the pattern,
+     * {@link UrlDoesntMatchFormatException} - if the link doesn't match the expected pattern format
+     */
+    public BigDecimal getIdFromLink(@NonNull String link) {
         Matcher matcher = PATTERN.matcher(link);
-        if (matcher.find())
-            return new BigDecimal(matcher.group(0));
-        else
-            throw new IllegalArgumentException(String.format("Id not found in the link: %s .", link));
+        if (matcher.find()) {
+            String matched = matcher.group(0);
+            if (StringUtil.isBlank(matched)) {
+                throw new IllegalArgumentException(String.format("Id not found in the link: %s .",
+                        link));
+            }
 
+            return new BigDecimal(matched);
+        } else {
+            throw new UrlDoesntMatchFormatException(String.format("URL doesn't match the excepted format: %s ; url: %s .",
+                    PATTERN.pattern(), link));
+        }
     }
 
     public String getNewsContent() {

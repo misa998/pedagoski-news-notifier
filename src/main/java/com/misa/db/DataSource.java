@@ -1,9 +1,11 @@
 package com.misa.db;
 
+import com.misa.dao.exceptions.DaoException;
 import com.misa.util.GetApplicationProperties;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import lombok.NoArgsConstructor;
@@ -21,27 +23,43 @@ public class DataSource {
     }
 
     public Connection openConnection() {
+        javax.sql.DataSource dataSource = createDataSource();
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(
-                    getURL(),
-                    GetApplicationProperties.get("db.username"),
-                    GetApplicationProperties.get("db.password"));
-            log.debug("Obtained the connection.");
+            connection = dataSource.getConnection();
+            log.debug("Connection obtained.");
             return connection;
         } catch (SQLException | ClassNotFoundException e) {
-            log.error(e.getMessage());
-            System.exit(-1);
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
+    }
+
+    private javax.sql.DataSource createDataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(getURL());
+        config.setUsername(GetApplicationProperties.get("db.username"));
+        config.setPassword(GetApplicationProperties.get("db.password"));
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+        config.addDataSourceProperty("useLocalSessionState", "true");
+        config.addDataSourceProperty("rewriteBatchedStatements", "true");
+        config.addDataSourceProperty("cacheResultSetMetadata", "true");
+        config.addDataSourceProperty("cacheServerConfiguration", "true");
+        config.addDataSourceProperty("elideSetAutoCommits", "true");
+        config.addDataSourceProperty("maintainTimeStats", "false");
+        config.addDataSourceProperty("max_user_connections", "15");
+
+        return new HikariDataSource(config);
     }
 
     public void closeConnection() {
         try {
             connection.close();
-            log.debug("Closed the connection.");
+            log.debug("Connection closed.");
         } catch (SQLException | NullPointerException e) {
-            log.error(e.getMessage());
+            throw new DaoException(e);
         }
     }
 

@@ -14,6 +14,14 @@ import javax.mail.internet.InternetAddress;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
+/**
+ * <p>This class is used to notify the {@link #getRecipientAddresses()} about an exception
+ * by sending the email with stacktrace content.</p>
+ *
+ * @since 2.1
+ * @author milos.ilic
+ * @see GlobalExceptionHandler
+ */
 @AllArgsConstructor
 @Log4j
 public class ExceptionNotifier implements IMailNotifier {
