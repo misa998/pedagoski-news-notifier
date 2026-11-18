@@ -62,7 +62,7 @@ public class ExceptionNotifier implements IMailNotifier {
     public Address[] getRecipientAddresses() {
         Address[] addresses = new Address[1];
         try {
-            addresses[0] = InternetAddress.parse("milosilic998@gmail.com")[0];
+            addresses[0] = InternetAddress.parse("<add subscriber here>")[0];
             return addresses;
         } catch (AddressException e) {
             throw new ParsingEmailAddressException(e);

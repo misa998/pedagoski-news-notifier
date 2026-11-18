@@ -14,12 +14,12 @@ import javax.mail.internet.MimeMultipart;
 
 public interface IMailNotifier {
 
-    String SENDER_ADDRESS = "info.pfvr@gmail.com";
+    String SENDER_ADDRESS = "";
 
     default void send() throws MessagingException {
         MailCredentials creds = MailCredentials.builder()
                                                .username(SENDER_ADDRESS)
-                                               .password("infopfvrvestioglasi")
+                                               .password("")
                                                .build();
 
         Session session = getSession(creds, new MailParameters());
